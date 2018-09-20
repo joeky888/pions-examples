@@ -12,6 +12,10 @@ Mac:
 
 `brew install portaudio opus opusfile`
 
+Windows MinGW64/MSYS2:
+
+`pacman -S mingw-w64-portaudio mingw-w64-opus mingw-w64-opusfile`
+
 
 Licence of these examples: Public domain/Unlicensed
 
