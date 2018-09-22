@@ -6,7 +6,7 @@
 
 Linux:
 
-`sudo apt install libportaudio-dev libopus-dev libopusfile-dev`
+`sudo apt install portaudio19-dev libopus-dev libopusfile-dev`
 
 Mac:
 
