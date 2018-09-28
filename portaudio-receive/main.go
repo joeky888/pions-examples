@@ -1,6 +1,8 @@
 package main
 
 import (
+	"syscall"
+	"os/signal"
 	"fmt"
 	"io"
 	"os"
@@ -11,7 +13,6 @@ import (
 	"github.com/pions/webrtc"
 	// "github.com/pions/webrtc/examples/gstreamer-receive/gst"
 	"github.com/gordonklaus/portaudio"
-	"github.com/cocoonlife/goalsa"
 	"gopkg.in/hraban/opus.v2"
 	"github.com/pions/webrtc/pkg/ice"
 )
@@ -51,21 +52,19 @@ func main() {
 
 	const channels = 1
 	const sampleRate = 16000
-	const format = alsa.FormatS16LE
 	const pcmsize = 320
-
-	// signal.Notify(ctrlc, os.Interrupt, syscall.SIGTERM)
-	// go cleanup(player)
 
 	portaudio.Initialize()
 	defer portaudio.Terminate()
 	pcm := make([]int16, pcmsize)
-	
+
 	player, err := portaudio.OpenDefaultStream(0, 1, sampleRate, len(pcm), &pcm)
 	if err != nil {
 		panic(err)
 	}
 	defer player.Close()
+	signal.Notify(ctrlc, os.Interrupt, syscall.SIGTERM)
+	go cleanup(player)
 
 	player.Start()
 	if err != nil {
@@ -127,10 +126,10 @@ func main() {
 	select {}
 }
 
-// func cleanup(player *alsa.PlaybackDevice) {
-// 	// User hit Ctrl-C, clean up
-// 	<-ctrlc
-// 	fmt.Println("Close devices")
-// 	player.Close()
-// 	os.Exit(1)
-// }
+func cleanup(player *alsa.PlaybackDevice) {
+	// User hit Ctrl-C, clean up
+	<-ctrlc
+	fmt.Println("Close devices")
+	player.Close()
+	os.Exit(1)
+}

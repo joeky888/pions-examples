@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/joeky888/gplay/alsa"
+	"github.com/cocoonlife/goalsa"
 )
 
 var ctrlc = make(chan os.Signal)
