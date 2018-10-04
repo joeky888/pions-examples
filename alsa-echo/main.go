@@ -13,13 +13,14 @@ var ctrlc = make(chan os.Signal)
 
 func main() {
 	fmt.Println("")
-	const channels = 1
+	const channels = 2
 	const sampleRate = 16000
 	const format = alsa.FormatS16LE
+	const pcmsize = 160
 	pcm := make(chan []int16)
 
 	player, err := alsa.NewPlaybackDevice("default", channels, format, sampleRate,
-		alsa.BufferParams{BufferFrames: 0, PeriodFrames: 320, Periods: 320})
+		alsa.BufferParams{BufferFrames: 0, PeriodFrames: pcmsize, Periods: pcmsize})
 
 	if err != nil {
 		panic(err)
@@ -27,7 +28,7 @@ func main() {
 	defer player.Close()
 
 	recorder, err := alsa.NewCaptureDevice("default", channels, format, sampleRate,
-		alsa.BufferParams{BufferFrames: 0, PeriodFrames: 320, Periods: 320})
+		alsa.BufferParams{BufferFrames: 0, PeriodFrames: pcmsize, Periods: pcmsize})
 
 	if err != nil {
 		panic(err)
@@ -38,7 +39,7 @@ func main() {
 	// defer recorder.Close()
 
 	go func() {
-		buf := make([]int16, 1024)
+		buf := make([]int16, pcmsize)
 		for {
 			recorder.Read(buf)
 			pcm <- buf
@@ -46,7 +47,7 @@ func main() {
 	}()
 
 	go func() {
-		buf := make([]int16, 1024)
+		buf := make([]int16, pcmsize)
 		for {
 			buf = <-pcm
 			player.Write(buf)
